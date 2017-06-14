@@ -8,35 +8,33 @@ from bson import json_util
 import time
 import configparser
 
+app = Flask(__name__)
+CORS(app)
+
 config = configparser.ConfigParser()
 config.read('./env.ini')
-print(config);
 
 MONGO_PATH = config['MONGO']['path']
 MONGO_DB = config['MONGO']['database']
 
-client = MongoClient(MONGO_PATH)
+client = MongoClient(MONGO_PATH, connect=False)
 test_flask_db = client[MONGO_DB]   # db
 store = test_flask_db.store         # collection
 users = test_flask_db.users
-
-app = Flask(__name__)
-CORS(app)
-
 
 def cursor_to_json(cursor):
     array = list(cursor)
     return json.dumps(array, default=json_util.default)
 
 
-@app.route("/test", methods=['GET'])
+@app.route("/api/test", methods=['GET'])
 def test():
     stores = store.find()
     js = cursor_to_json(stores)
     resp = Response(js, status=200, mimetype='application/json')
     return resp
 
-@app.route("/login", methods=['POST'])
+@app.route("/api/login", methods=['POST'])
 def login():
     data = request.json
     access_token = data['socialToken']['access_token']
@@ -56,7 +54,7 @@ def login():
     return Response(json.dumps(profile, default=json_util.default), status=200, mimetype='application/json')
 
 
-@app.route("/login_history", methods=['GET'])
+@app.route("/api/login_history", methods=['GET'])
 def login_history():
     pprint.pprint("loading history")
     history = users.find()
