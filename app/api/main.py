@@ -9,17 +9,18 @@ import time
 import configparser
 
 config = configparser.ConfigParser()
-config.read('env.ini')
+config.read('./env.ini')
+print(config);
 
 MONGO_PATH = config['MONGO']['path']
-MONGO_DB = config['MONGO']['db']
+MONGO_DB = config['MONGO']['database']
 
 client = MongoClient(MONGO_PATH)
 test_flask_db = client[MONGO_DB]   # db
 store = test_flask_db.store         # collection
 users = test_flask_db.users
 
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__)
 CORS(app)
 
 
